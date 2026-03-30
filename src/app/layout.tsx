@@ -4,7 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SplashScreen from "@/components/SplashScreen";
-import ThreeDDecor from "@/components/ThreeDDecor";
+
 
 const sans = Montserrat({
   subsets: ["latin"],
@@ -37,19 +37,28 @@ export default function RootLayout(props: {
       <body className="antialiased font-sans text-theme-text bg-theme-bg min-h-screen flex flex-col selection:bg-theme-accent selection:text-white pb-safe relative overflow-x-hidden">
         <SplashScreen />
         <Header />
-        <ThreeDDecor />
-        
-        <div className="flex-grow flex relative perspective-scene">
-          <main className="flex-grow pt-20 transition-all duration-700 preserve-3d">
-            {/* The main page.tsx content */}
+        <div className="flex-grow flex relative">
+          <main className="flex-grow w-full">
+            {/* Non-home page content */}
             {props.children}
 
-            {/* Parallel Home Page Slots */}
-            <div className="flex flex-col preserve-3d">
-              {props.hero}
-              {props.banner}
-              {props.products}
-              {props.features}
+            {/* 
+              Sticky Stack Parallax — each slot is wrapped in a .stack-panel.
+              The slots stack over each other as you scroll (Cascaid style).
+            */}
+            <div className="stack-container">
+              <div className="stack-panel">
+                {props.hero}
+              </div>
+              <div className="stack-panel bg-[#f8f0e5]">
+                {props.banner}
+              </div>
+              <div className="stack-panel bg-theme-bg">
+                {props.products}
+              </div>
+              <div className="stack-panel bg-theme-text">
+                {props.features}
+              </div>
             </div>
           </main>
 

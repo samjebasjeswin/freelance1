@@ -5,9 +5,8 @@ import { usePathname } from "next/navigation";
 
 export default function HeroSlot() {
   const pathname = usePathname();
-  
-  // Only show Hero on the home page
   if (pathname !== "/") return null;
 
-  return <Hero />;
+  // Hero fills the full height of its parent .stack-panel (100vh)
+  return <div className="flex-1 flex flex-col"><Hero /></div>;
 }
