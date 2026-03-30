@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SplashScreen from "@/components/SplashScreen";
+import HomeSlotsWrapper from "@/components/HomeSlotsWrapper";
 
 
 const sans = Montserrat({
@@ -42,24 +43,13 @@ export default function RootLayout(props: {
             {/* Non-home page content */}
             {props.children}
 
-            {/* 
-              Sticky Stack Parallax — each slot is wrapped in a .stack-panel.
-              The slots stack over each other as you scroll (Cascaid style).
-            */}
-            <div className="stack-container">
-              <div className="stack-panel">
-                {props.hero}
-              </div>
-              <div className="stack-panel bg-[#f8f0e5]">
-                {props.banner}
-              </div>
-              <div className="stack-panel bg-theme-bg">
-                {props.products}
-              </div>
-              <div className="stack-panel bg-theme-text">
-                {props.features}
-              </div>
-            </div>
+            {/* Parallel Home Page Slots wrapped conditionally */}
+            <HomeSlotsWrapper 
+              hero={props.hero}
+              banner={props.banner}
+              products={props.products}
+              features={props.features}
+            />
           </main>
 
           {/* Parallel Dashboard Slot */}
