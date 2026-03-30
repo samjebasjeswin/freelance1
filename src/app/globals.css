@@ -13,6 +13,10 @@
   
   --glass: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.2);
+  
+  --perspective: 1500px;
+  --dimension-accent: 36 65% 70%; /* #d9bc94 */
+  --dimension-glow: 36 100% 90%;
 }
 
 @theme {
@@ -22,6 +26,9 @@
   --color-theme-border: hsl(var(--theme-border));
   --color-theme-card: hsl(var(--theme-card));
   --color-theme-faint: hsl(var(--theme-faint));
+  
+  --color-dimension-accent: hsl(var(--dimension-accent));
+  --color-dimension-glow: hsl(var(--dimension-glow));
   
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
@@ -76,4 +83,39 @@ body {
 
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+.perspective-scene {
+  perspective: var(--perspective);
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.floating-3d {
+  animation: float3d 6s ease-in-out infinite;
+}
+
+@keyframes float3d {
+  0%, 100% {
+    transform: translateY(0) rotateX(0deg) rotateY(0deg);
+  }
+  33% {
+    transform: translateY(-20px) rotateX(2deg) rotateY(-2deg);
+  }
+  66% {
+    transform: translateY(10px) rotateX(-2deg) rotateY(2deg);
+  }
+}
+
+.glow-3d {
+  box-shadow: 0 0 40px var(--color-dimension-glow);
 }

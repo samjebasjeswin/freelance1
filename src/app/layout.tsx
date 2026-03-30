@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SplashScreen from "@/components/SplashScreen";
+import ThreeDDecor from "@/components/ThreeDDecor";
 
 const sans = Montserrat({
   subsets: ["latin"],
@@ -26,16 +27,30 @@ export default function RootLayout(props: {
   children: React.ReactNode;
   dashboard: React.ReactNode;
   modal: React.ReactNode;
+  hero: React.ReactNode;
+  banner: React.ReactNode;
+  products: React.ReactNode;
+  features: React.ReactNode;
 }) {
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable} scroll-smooth`}>
       <body className="antialiased font-sans text-theme-text bg-theme-bg min-h-screen flex flex-col selection:bg-theme-accent selection:text-white pb-safe relative overflow-x-hidden">
         <SplashScreen />
         <Header />
+        <ThreeDDecor />
         
-        <div className="flex-grow flex relative">
-          <main className="flex-grow pt-20 transition-all duration-700">
+        <div className="flex-grow flex relative perspective-scene">
+          <main className="flex-grow pt-20 transition-all duration-700 preserve-3d">
+            {/* The main page.tsx content */}
             {props.children}
+
+            {/* Parallel Home Page Slots */}
+            <div className="flex flex-col preserve-3d">
+              {props.hero}
+              {props.banner}
+              {props.products}
+              {props.features}
+            </div>
           </main>
 
           {/* Parallel Dashboard Slot */}
