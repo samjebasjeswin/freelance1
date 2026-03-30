@@ -30,10 +30,7 @@ function writeCollectionsFile(collections: Collection[]) {
 }
 
 export function getAllCollections(): Collection[] {
-  const hasDb = Boolean(
-    process.env.DATABASE_URL ||
-      (process.env.DB_HOST && process.env.DB_USER && process.env.DB_NAME)
-  );
+  const hasDb = Boolean(process.env.DATABASE_URL);
   if (hasDb) return [];
   try {
     return readCollectionsFile();
@@ -48,10 +45,7 @@ type CreateCollectionInput = {
 };
 
 export function createCollection(input: CreateCollectionInput): Collection {
-  const hasDb = Boolean(
-    process.env.DATABASE_URL ||
-      (process.env.DB_HOST && process.env.DB_USER && process.env.DB_NAME)
-  );
+  const hasDb = Boolean(process.env.DATABASE_URL);
   if (hasDb) {
     // In DB mode, use createCollectionDb.
     throw new Error("createCollection() is not available in DB mode");
@@ -71,34 +65,29 @@ export function createCollection(input: CreateCollectionInput): Collection {
 }
 
 export async function getAllCollectionsAsync(): Promise<Collection[]> {
-  const hasDb = Boolean(
-    process.env.DATABASE_URL ||
-      (process.env.DB_HOST && process.env.DB_USER && process.env.DB_NAME)
-  );
+  const hasDb = Boolean(process.env.DATABASE_URL);
 
   if (!hasDb) return getAllCollections();
 
   const pool = getDbPool();
-  const [rows] = await pool.execute(
+  const rowsRes = await pool.query(
     `SELECT c.id, c.name, c.createdAt
      FROM collections c
      ORDER BY c.id DESC`
   );
 
-  const data = Array.isArray(rows)
-    ? (rows as unknown as Array<Record<string, unknown>>)
-    : [];
+  const data = rowsRes.rows as Array<Record<string, unknown>>;
   if (data.length === 0) return [];
 
   // Fetch join table
   const ids = data.map((x) => Number(x.id));
-  const [cpRows] = await pool.execute(
-    `SELECT collectionId, productId FROM collection_products WHERE collectionId IN (?)`,
+  const cpRowsRes = await pool.query(
+    `SELECT "collectionId", "productId"
+     FROM collection_products
+     WHERE "collectionId" = ANY($1::int[])`,
     [ids]
   );
-  const cpData = Array.isArray(cpRows)
-    ? (cpRows as unknown as Array<Record<string, unknown>>)
-    : [];
+  const cpData = cpRowsRes.rows as Array<Record<string, unknown>>;
 
   const map = new Map<number, number[]>();
   for (const c of data) map.set(Number(c.id), []);
@@ -117,40 +106,35 @@ export async function getAllCollectionsAsync(): Promise<Collection[]> {
 }
 
 export async function createCollectionDb(input: CreateCollectionInput): Promise<Collection> {
-  const hasDb = Boolean(
-    process.env.DATABASE_URL ||
-      (process.env.DB_HOST && process.env.DB_USER && process.env.DB_NAME)
-  );
+  const hasDb = Boolean(process.env.DATABASE_URL);
   if (!hasDb) return createCollection(input);
 
   const pool = getDbPool();
   const name = input.name;
   const productIds = input.productIds.map((x) => Number(x)).filter((x) => Number.isFinite(x));
 
-  const conn = await pool.getConnection();
+  const conn = await pool.connect();
   try {
-    await conn.beginTransaction();
+    await conn.query("BEGIN");
 
-    const [insertRes] = await conn.execute(
-      `INSERT INTO collections (name, createdAt) VALUES (?, NOW())`,
+    const insertRes = await conn.query(
+      `INSERT INTO collections (name, "createdAt") VALUES ($1, NOW()) RETURNING id`,
       [name]
     );
-    const collectionId = Number(
-      (insertRes as unknown as { insertId?: number }).insertId
-    );
+    const collectionId = Number(insertRes.rows?.[0]?.id);
     if (!Number.isFinite(collectionId) || collectionId <= 0) {
       throw new Error("Failed to get inserted collection id");
     }
 
     if (productIds.length > 0) {
-      const values = productIds.map((pid) => [collectionId, pid]);
       await conn.query(
-        `INSERT INTO collection_products (collectionId, productId) VALUES ?`,
-        [values]
+        `INSERT INTO collection_products ("collectionId", "productId")
+         SELECT $1::int, unnest($2::int[])`,
+        [collectionId, productIds]
       );
     }
 
-    await conn.commit();
+    await conn.query("COMMIT");
 
     return {
       id: collectionId,
@@ -159,7 +143,7 @@ export async function createCollectionDb(input: CreateCollectionInput): Promise<
       createdAt: new Date().toISOString(),
     };
   } catch (e) {
-    await conn.rollback();
+    await conn.query("ROLLBACK");
     throw e;
   } finally {
     conn.release();

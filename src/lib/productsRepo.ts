@@ -3,15 +3,11 @@ import type { Product } from "@/components/ProductCard";
 import fs from "fs";
 import path from "path";
 import { getDbPool } from "@/lib/db";
-import mysql from "mysql2/promise";
 
 const PRODUCTS_JSON_PATH = path.join(process.cwd(), "src", "data", "products.json");
 
 function isDbConfigured() {
-  return Boolean(
-    process.env.DATABASE_URL ||
-      (process.env.DB_HOST && process.env.DB_USER && process.env.DB_NAME)
-  );
+  return Boolean(process.env.DATABASE_URL);
 }
 
 function readProductsFile(): Product[] {
@@ -49,15 +45,13 @@ export async function getAllProductsAsync(): Promise<Product[]> {
   if (!isDbConfigured()) return getAllProducts();
 
   const pool = getDbPool();
-  const [rows] = await pool.execute(
+  const res = await pool.query(
     `SELECT id, name, price, image, badge, timer, category
      FROM products
      ORDER BY id DESC`
   );
 
-  const data = Array.isArray(rows)
-    ? (rows as unknown as Array<Record<string, unknown>>)
-    : [];
+  const data = res.rows as Array<Record<string, unknown>>;
 
   if (data.length === 0) {
     // Best-effort seed from bundled JSON (useful for first deploys).
@@ -65,9 +59,9 @@ export async function getAllProductsAsync(): Promise<Product[]> {
       const seed = readProductsFile();
       if (seed.length > 0) {
         for (const p of seed) {
-          await pool.execute(
+          await pool.query(
             `INSERT INTO products (name, price, image, badge, timer, category)
-             VALUES (?, ?, ?, ?, ?, ?)`,
+             VALUES ($1, $2, $3, $4, $5, $6)`,
             [
               p.name,
               typeof p.price === "number" ? String(p.price) : String(p.price),
@@ -83,14 +77,12 @@ export async function getAllProductsAsync(): Promise<Product[]> {
       // ignore seed errors
     }
 
-    const [rowsAfter] = await pool.execute(
+    const rowsAfter = await pool.query(
       `SELECT id, name, price, image, badge, timer, category
        FROM products
        ORDER BY id DESC`
     );
-    const seeded = Array.isArray(rowsAfter)
-      ? (rowsAfter as unknown as Array<Record<string, unknown>>)
-      : [];
+    const seeded = rowsAfter.rows as Array<Record<string, unknown>>;
     return seeded.map((r) => ({
       id: Number(r.id),
       name: String(r.name),
@@ -117,15 +109,13 @@ export async function getProductByIdAsync(id: number): Promise<Product | null> {
   if (!isDbConfigured()) return getProductById(id);
 
   const pool = getDbPool();
-  const [rows] = await pool.execute(
+  const res = await pool.query(
     `SELECT id, name, price, image, badge, timer, category
-     FROM products WHERE id = ? LIMIT 1`,
+     FROM products WHERE id = $1 LIMIT 1`,
     [id]
   );
 
-  const data = Array.isArray(rows)
-    ? (rows as unknown as Array<Record<string, unknown>>)
-    : [];
+  const data = res.rows as Array<Record<string, unknown>>;
   const r = data[0];
   if (!r) {
     // If the table was empty and never seeded yet, seed and retry once.
@@ -133,9 +123,9 @@ export async function getProductByIdAsync(id: number): Promise<Product | null> {
       const seed = readProductsFile();
       if (seed.length > 0) {
         for (const p of seed) {
-          await pool.execute(
+          await pool.query(
             `INSERT INTO products (name, price, image, badge, timer, category)
-             VALUES (?, ?, ?, ?, ?, ?)`,
+             VALUES ($1, $2, $3, $4, $5, $6)`,
             [
               p.name,
               typeof p.price === "number" ? String(p.price) : String(p.price),
@@ -151,14 +141,12 @@ export async function getProductByIdAsync(id: number): Promise<Product | null> {
       // ignore seed errors
     }
 
-    const [rowsAfter] = await pool.execute(
+    const rowsAfter = await pool.query(
       `SELECT id, name, price, image, badge, timer, category
-       FROM products WHERE id = ? LIMIT 1`,
+       FROM products WHERE id = $1 LIMIT 1`,
       [id]
     );
-    const afterData = Array.isArray(rowsAfter)
-      ? (rowsAfter as unknown as Array<Record<string, unknown>>)
-      : [];
+    const afterData = rowsAfter.rows as Array<Record<string, unknown>>;
     const rAfter = afterData[0];
     if (!rAfter) return null;
 
@@ -202,9 +190,10 @@ export async function createProductDb(input: CreateProductInput): Promise<Produc
   const pool = getDbPool();
   const price = typeof input.price === "number" ? String(input.price) : input.price;
 
-  const [result] = await pool.execute<mysql.ResultSetHeader>(
+  const res = await pool.query(
     `INSERT INTO products (name, price, image, badge, timer, category)
-     VALUES (?, ?, ?, ?, ?, ?)`,
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING id`,
     [
       input.name,
       price,
@@ -215,7 +204,7 @@ export async function createProductDb(input: CreateProductInput): Promise<Produc
     ]
   );
 
-  const insertId = (result as mysql.ResultSetHeader).insertId;
+  const insertId = Number(res.rows?.[0]?.id);
   return {
     id: insertId,
     name: input.name,

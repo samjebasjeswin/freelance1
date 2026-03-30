@@ -16,10 +16,7 @@ export type SmtpConfig = {
 const SMTP_CONFIG_PATH = path.join(process.cwd(), "src", "data", "smtp-config.json");
 
 function isDbConfigured() {
-  return Boolean(
-    process.env.DATABASE_URL ||
-      (process.env.DB_HOST && process.env.DB_USER && process.env.DB_NAME)
-  );
+  return Boolean(process.env.DATABASE_URL);
 }
 
 export function getSmtpConfig(): Partial<SmtpConfig> | null {
@@ -41,16 +38,16 @@ export async function getSmtpConfigAsync(): Promise<Partial<SmtpConfig> | null> 
   if (!isDbConfigured()) return getSmtpConfig();
 
   const pool = getDbPool();
-  const [rows] = await pool.execute(
-    `SELECT smtpHost, smtpPort, smtpUser, smtpPass, quoteToEmail, quoteFromEmail, quoteCcEmail, quoteBccEmail
+  const res = await pool.query(
+    `SELECT "smtpHost", "smtpPort", "smtpUser", "smtpPass",
+            "quoteToEmail", "quoteFromEmail", "quoteCcEmail", "quoteBccEmail"
      FROM admin_smtp_config
      WHERE id = 1
      LIMIT 1`
   );
 
-  const data = Array.isArray(rows) ? (rows as unknown as Record<string, unknown>[]) : [];
-  if (!data[0]) return null;
-  const r = data[0];
+  const r = res.rows?.[0] as Record<string, unknown> | undefined;
+  if (!r) return null;
   return {
     smtpHost: r.smtpHost ? String(r.smtpHost) : "",
     smtpPort: r.smtpPort ? String(r.smtpPort) : "",
@@ -67,19 +64,20 @@ export async function saveSmtpConfigAsync(config: Partial<SmtpConfig>) {
   if (!isDbConfigured()) return saveSmtpConfig(config);
 
   const pool = getDbPool();
-  await pool.execute(
+  await pool.query(
     `INSERT INTO admin_smtp_config
-      (id, smtpHost, smtpPort, smtpUser, smtpPass, quoteToEmail, quoteFromEmail, quoteCcEmail, quoteBccEmail)
-     VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE
-      smtpHost = VALUES(smtpHost),
-      smtpPort = VALUES(smtpPort),
-      smtpUser = VALUES(smtpUser),
-      smtpPass = VALUES(smtpPass),
-      quoteToEmail = VALUES(quoteToEmail),
-      quoteFromEmail = VALUES(quoteFromEmail),
-      quoteCcEmail = VALUES(quoteCcEmail),
-      quoteBccEmail = VALUES(quoteBccEmail)`,
+      (id, "smtpHost", "smtpPort", "smtpUser", "smtpPass",
+       "quoteToEmail", "quoteFromEmail", "quoteCcEmail", "quoteBccEmail")
+     VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8)
+     ON CONFLICT (id) DO UPDATE SET
+      "smtpHost" = EXCLUDED."smtpHost",
+      "smtpPort" = EXCLUDED."smtpPort",
+      "smtpUser" = EXCLUDED."smtpUser",
+      "smtpPass" = EXCLUDED."smtpPass",
+      "quoteToEmail" = EXCLUDED."quoteToEmail",
+      "quoteFromEmail" = EXCLUDED."quoteFromEmail",
+      "quoteCcEmail" = EXCLUDED."quoteCcEmail",
+      "quoteBccEmail" = EXCLUDED."quoteBccEmail"`,
     [
       config.smtpHost ?? "",
       config.smtpPort ?? "",

@@ -17,10 +17,7 @@ export type Enquiry = {
 const ENQUIRIES_JSON_PATH = path.join(process.cwd(), "src", "data", "enquiries.json");
 
 function isDbConfigured() {
-  return Boolean(
-    process.env.DATABASE_URL ||
-      (process.env.DB_HOST && process.env.DB_USER && process.env.DB_NAME)
-  );
+  return Boolean(process.env.DATABASE_URL);
 }
 
 function readEnquiriesFile(): Enquiry[] {
@@ -76,9 +73,10 @@ export async function appendEnquiryAsync(
   }
 
   const pool = getDbPool();
-  const [result] = await pool.execute(
-    `INSERT INTO enquiries (productName, quantity, name, email, phone, message, status, createdAt)
-     VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+  const res = await pool.query(
+    `INSERT INTO enquiries ("productName", quantity, name, email, phone, message, status, "createdAt")
+     VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+     RETURNING id`,
     [
       entry.productName,
       entry.quantity,
@@ -90,7 +88,7 @@ export async function appendEnquiryAsync(
     ]
   );
 
-  const insertId = (result as { insertId?: number }).insertId;
+  const insertId = Number(res.rows?.[0]?.id);
   return {
     id: typeof insertId === "number" ? insertId : Date.now(),
     createdAt: new Date().toISOString(),
@@ -104,15 +102,13 @@ export async function getAllEnquiriesAsync(): Promise<Enquiry[]> {
   }
 
   const pool = getDbPool();
-  const [rows] = await pool.execute(
-    `SELECT id, createdAt, productName, quantity, name, email, phone, message, status
+  const res = await pool.query(
+    `SELECT id, "createdAt", "productName", quantity, name, email, phone, message, status
      FROM enquiries
      ORDER BY id DESC`
   );
 
-  const data = Array.isArray(rows)
-    ? (rows as unknown as Array<Record<string, unknown>>)
-    : [];
+  const data = res.rows as Array<Record<string, unknown>>;
 
   return data.map((r) => ({
     id: Number(r.id),
