@@ -3,9 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingBag, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CART_UPDATED_EVENT, getCartFromStorage, getCartItemCount } from "@/lib/storage";
 
 export default function Header() {
   const pathname = usePathname();
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const update = () => setCartCount(getCartItemCount(getCartFromStorage()));
+    update();
+    window.addEventListener(CART_UPDATED_EVENT, update);
+    return () => window.removeEventListener(CART_UPDATED_EVENT, update);
+  }, []);
+
+  if (!pathname || pathname.startsWith("/admin")) return null;
 
   const isActive = (path: string) => pathname === path;
 
@@ -50,7 +62,9 @@ export default function Header() {
           <Link href="/login" className="hidden md:block text-[11px] font-bold tracking-widest hover:text-theme-accent transition-colors">LOGIN</Link>
           <Link href="/cart" className="relative p-1 hover:text-theme-accent transition-colors group">
             <ShoppingBag size={20} className="md:w-[22px] md:h-[22px] group-hover:-rotate-12 transition-transform" strokeWidth={1.5} />
-            <span className="absolute -top-1 -right-1 bg-theme-accent text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">1</span>
+            <span className="absolute -top-1 -right-1 bg-theme-accent text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+              {cartCount}
+            </span>
           </Link>
           <Link href="/dashboard" className="md:hidden relative p-1 hover:text-theme-accent transition-colors">
             <User size={20} strokeWidth={1.5} />

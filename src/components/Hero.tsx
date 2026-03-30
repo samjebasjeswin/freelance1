@@ -2,25 +2,54 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function Hero() {
-  const [scrollY, setScrollY] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const bgLayerRef = useRef<HTMLDivElement>(null);
+  const textLayerRef = useRef<HTMLDivElement>(null);
+
+  const rafRef = useRef<number | null>(null);
+  const latest = useRef({ scrollY: 0, mouseX: 0, mouseY: 0 });
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({
-        x: (e.clientX / window.innerWidth - 0.5) * 20,
-        y: (e.clientY / window.innerHeight - 0.5) * 20,
-      });
+    const apply = () => {
+      rafRef.current = null;
+      const { scrollY, mouseX, mouseY } = latest.current;
+
+      if (bgLayerRef.current) {
+        bgLayerRef.current.style.transform = `translateY(${scrollY * 0.25}px) scale(1.15)`;
+      }
+      if (textLayerRef.current) {
+        textLayerRef.current.style.transform = `translateY(${-scrollY * 0.1}px) rotateX(${-mouseY * 0.15}deg) rotateY(${-mouseX * 0.15}deg)`;
+      }
     };
+
+    const schedule = () => {
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(apply);
+    };
+
+    const handleScroll = () => {
+      latest.current.scrollY = window.scrollY;
+      schedule();
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      latest.current.mouseX = (e.clientX / window.innerWidth - 0.5) * 20;
+      latest.current.mouseY = (e.clientY / window.innerHeight - 0.5) * 20;
+      schedule();
+    };
+
+    // Initialize
+    latest.current.scrollY = window.scrollY;
+    schedule();
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("mousemove", handleMouseMove);
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("mousemove", handleMouseMove);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
@@ -28,12 +57,9 @@ export default function Hero() {
     <div className="relative w-full min-h-screen flex items-center overflow-hidden bg-theme-text">
       {/* Parallax background image — moves slower than scroll */}
       <div
+        ref={bgLayerRef}
         className="absolute inset-0 z-0"
-        style={{
-          transform: `translateY(${scrollY * 0.25}px) scale(1.15)`,
-          transition: "transform 0.15s linear",
-          willChange: "transform",
-        }}
+        style={{ transition: "transform 0.15s linear", willChange: "transform", transform: "translateY(0px) scale(1.15)" }}
       >
         <Image
           src="/assets/hero_bag.png"
@@ -47,12 +73,9 @@ export default function Hero() {
 
       {/* Text — moves faster (independent parallax layer) */}
       <div
+        ref={textLayerRef}
         className="container mx-auto px-6 relative z-20 text-white"
-        style={{
-          transform: `translateY(${-scrollY * 0.1}px) rotateX(${-mousePos.y * 0.15}deg) rotateY(${-mousePos.x * 0.15}deg)`,
-          transition: "transform 0.1s ease-out",
-          perspective: "800px",
-        }}
+        style={{ transform: "translateY(0px) rotateX(0deg) rotateY(0deg)", transition: "transform 0.1s ease-out", perspective: "800px" }}
       >
         <div className="max-w-4xl space-y-8 animate-reveal">
           <div className="space-y-4">

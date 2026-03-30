@@ -1,16 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 export default function ThreeDDecor() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
   return (
     <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden perspective-scene">
       {/* 3D Floating Spheres/Blobs */}

@@ -1,0 +1,48 @@
+[
+  {
+    "id": 1,
+    "name": "Aj Bags",
+    "price": "₹ 1,599.00",
+    "image": "/assets/bag_1.png",
+    "badge": "20% OFF",
+    "timer": "3011H 04M 17S",
+    "category": "handbags"
+  },
+  {
+    "id": 2,
+    "name": "Aj Bags",
+    "price": "₹ 1,599.00",
+    "image": "/assets/bag_2.png",
+    "badge": null,
+    "timer": null,
+    "category": "handbags"
+  },
+  {
+    "id": 3,
+    "name": "Aj Bags",
+    "price": "₹ 1,599.00",
+    "image": "/assets/bag_3.png",
+    "badge": null,
+    "timer": null,
+    "category": "handbags"
+  },
+  {
+    "id": 4,
+    "name": "Luxury Tote",
+    "price": "₹ 2,499.00",
+    "image": "/assets/hero_bag.png",
+    "badge": "NEW",
+    "timer": null,
+    "category": "handbags"
+  },
+  {
+    "id": 5,
+    "name": "Work Hour Bag",
+    "price": "₹ 1,899.00",
+    "image": "/assets/promo_banner.png",
+    "badge": null,
+    "timer": null,
+    "category": "handbags"
+  }
+]
+

@@ -2,12 +2,23 @@
 
 import { Package, User, ShoppingCart, X, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { CART_UPDATED_EVENT, getCartFromStorage, getCartItemCount } from "@/lib/storage";
 
 interface MiniDashboardProps {
   onClose: () => void;
 }
 
 export default function MiniDashboard({ onClose }: MiniDashboardProps) {
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const update = () => setCartCount(getCartItemCount(getCartFromStorage()));
+    update();
+    window.addEventListener(CART_UPDATED_EVENT, update);
+    return () => window.removeEventListener(CART_UPDATED_EVENT, update);
+  }, []);
+
   return (
     <div className="flex flex-col h-full bg-white/80 backdrop-blur-3xl border-l border-theme-border/50 animate-slide-right shadow-2xl">
       {/* Header */}
@@ -59,7 +70,9 @@ export default function MiniDashboard({ onClose }: MiniDashboardProps) {
               <span className="text-[13px] font-medium tracking-wide">Shopping Bag</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="bg-theme-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+              <span className="bg-theme-accent text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                {cartCount}
+              </span>
               <ChevronRight size={16} className="text-theme-border group-hover:translate-x-1 transition-transform" />
             </div>
           </Link>

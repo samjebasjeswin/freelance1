@@ -3,7 +3,6 @@ import { Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import SplashScreen from "@/components/SplashScreen";
 import HomeSlotsWrapper from "@/components/HomeSlotsWrapper";
 
 
@@ -36,7 +35,6 @@ export default function RootLayout(props: {
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable} scroll-smooth`}>
       <body className="antialiased font-sans text-theme-text bg-theme-bg min-h-screen flex flex-col selection:bg-theme-accent selection:text-white pb-safe relative overflow-x-hidden">
-        <SplashScreen />
         <Header />
         <div className="flex-grow flex relative">
           <main className="flex-grow w-full">

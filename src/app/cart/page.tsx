@@ -3,14 +3,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ChevronRight } from "lucide-react";
-import { useState } from "react";
-
-const CART_ITEMS = [
-  { id: 1, name: "Aj Bags", price: 1599.00, image: "/assets/bag_1.png", quantity: 1, category: "Handbags" },
-];
+import { useEffect, useState } from "react";
+import {
+  CART_UPDATED_EVENT,
+  CartItem,
+  getCartFromStorage,
+  notifyCartUpdated,
+  saveCartToStorage,
+} from "@/lib/storage";
 
 export default function CartPage() {
-  const [items, setItems] = useState(CART_ITEMS);
+  const [items, setItems] = useState<CartItem[]>(() => getCartFromStorage());
+
+  useEffect(() => {
+    const handler = () => setItems(getCartFromStorage());
+    window.addEventListener(CART_UPDATED_EVENT, handler);
+    return () => window.removeEventListener(CART_UPDATED_EVENT, handler);
+  }, []);
+
+  useEffect(() => {
+    saveCartToStorage(items);
+    notifyCartUpdated();
+  }, [items]);
+
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const shipping = subtotal > 1000 ? 0 : 150;
   const total = subtotal + shipping;

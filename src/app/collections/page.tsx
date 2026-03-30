@@ -61,7 +61,7 @@ export default function CollectionsPage() {
                Bespoke Craftsmanship
              </h2>
              <p className="text-theme-bg/60 text-sm md:text-base font-sans font-light tracking-[0.2em] uppercase max-w-2xl mx-auto">
-               Can't find exactly what you're looking for? Contact us for exclusive custom orders tailored to your unique style.
+              Can&apos;t find exactly what you&apos;re looking for? Contact us for exclusive custom orders tailored to your unique style.
              </p>
              <button className="inline-block bg-theme-accent text-white px-10 py-4 rounded-full text-[12px] font-bold tracking-[0.2em] uppercase hover:bg-white hover:text-theme-text transition-all mt-6 shadow-xl">
                Contact Artisan

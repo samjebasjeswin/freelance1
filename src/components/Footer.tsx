@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Camera, Globe, Share2 } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -13,14 +12,23 @@ export default function Footer() {
             Premium handcrafted bags designed for everyday style and durability. Elevate your carry with our signature crochet collection.
           </p>
           <div className="flex gap-5">
-            <a href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-all">
-              <Camera size={18} strokeWidth={1.5} />
+            <a
+              href="https://www.instagram.com/am_crochet_bag?igsh=d2MzZzU1b2FrNmJt"
+              target="_blank"
+              rel="noreferrer"
+              className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-all"
+              aria-label="Instagram"
+            >
+              <span className="text-[12px] font-bold tracking-wide">IG</span>
             </a>
-            <a href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-all">
-              <Globe size={18} strokeWidth={1.5} />
-            </a>
-            <a href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-all">
-              <Share2 size={18} strokeWidth={1.5} />
+            <a
+              href="https://www.threads.com/@am_crochet_bag?xmt=AQF0Sy0JT9DICj93Zxc9LiE5iLaJWAtjU37pVnrIfDcpeNE"
+              target="_blank"
+              rel="noreferrer"
+              className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-all"
+              aria-label="Threads"
+            >
+              <span className="text-[12px] font-bold tracking-wide">T</span>
             </a>
           </div>
         </div>

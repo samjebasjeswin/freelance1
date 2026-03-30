@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useRef } from "react";
+import Link from "next/link";
 
 export interface Product {
     id: number | string;
@@ -18,42 +19,67 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-    const [tilt, setTilt] = useState({ x: 0, y: 0 });
+    const tiltContainerRef = useRef<HTMLDivElement>(null);
+    const detailsRef = useRef<HTMLDivElement>(null);
+    const rectRef = useRef<DOMRect | null>(null);
+    const rafRef = useRef<number | null>(null);
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        const card = e.currentTarget;
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+    const formattedPrice = useMemo(() => {
+        return typeof product.price === 'number' 
+            ? `₹ ${product.price.toLocaleString()}` 
+            : product.price;
+    }, [product.price]);
+
+    const applyTilt = (clientX: number, clientY: number) => {
+        const rect = rectRef.current;
+        if (!rect || !tiltContainerRef.current || !detailsRef.current) return;
+
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
         const rotateX = ((y - centerY) / centerY) * 10;
         const rotateY = ((centerX - x) / centerX) * 10;
 
-        setTilt({ x: rotateX, y: rotateY });
+        tiltContainerRef.current.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        // Slight lift for the text block while tilting.
+        detailsRef.current.style.transform = rotateX ? "translateZ(10px)" : "none";
     };
 
     const handleMouseLeave = () => {
-        setTilt({ x: 0, y: 0 });
+        rectRef.current = null;
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+        if (tiltContainerRef.current) tiltContainerRef.current.style.transform = "rotateX(0deg) rotateY(0deg)";
+        if (detailsRef.current) detailsRef.current.style.transform = "none";
     };
 
-    const formattedPrice = typeof product.price === 'number' 
-        ? `₹ ${product.price.toLocaleString()}` 
-        : product.price;
+    const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        rectRef.current = e.currentTarget.getBoundingClientRect();
+    };
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        const { clientX, clientY } = e;
+        rafRef.current = requestAnimationFrame(() => applyTilt(clientX, clientY));
+    };
 
     return (
-        <div 
+        <Link
+            href={`/products/${product.id}`}
             className="group cursor-pointer perspective-scene"
             onMouseMove={handleMouseMove}
+            onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
             <div 
                 className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#f5f5f5] mb-6 shadow-sm group-hover:shadow-premium transition-all duration-300 preserve-3d"
-                style={{ 
-                    transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-                }}
             >
-                <div className="absolute inset-0">
+                <div
+                    ref={tiltContainerRef}
+                    className="absolute inset-0"
+                    style={{ transform: "rotateX(0deg) rotateY(0deg)" }}
+                >
                     <Image
                         src={product.image}
                         alt={product.name}
@@ -90,7 +116,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </div>
             </div>
 
-            <div className="space-y-2 preserve-3d" style={{ transform: tilt.x ? `translateZ(10px)` : 'none' }}>
+            <div className="space-y-2 preserve-3d" ref={detailsRef}>
                 <h3 className="text-lg font-serif font-semibold group-hover:text-theme-accent transition-colors">
                     {product.name}
                 </h3>
@@ -103,6 +129,6 @@ export default function ProductCard({ product }: ProductCardProps) {
                     </button>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }
