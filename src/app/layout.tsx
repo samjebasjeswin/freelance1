@@ -22,19 +22,33 @@ export const metadata: Metadata = {
   description: "Exquisite handcrafted crochet bags and accessories designed for enduring style and refined luxury.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+export default function RootLayout(props: {
   children: React.ReactNode;
-}>) {
+  dashboard: React.ReactNode;
+  modal: React.ReactNode;
+}) {
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable} scroll-smooth`}>
-      <body className="antialiased font-sans text-theme-text bg-theme-bg min-h-screen flex flex-col selection:bg-theme-accent selection:text-white pb-safe">
+      <body className="antialiased font-sans text-theme-text bg-theme-bg min-h-screen flex flex-col selection:bg-theme-accent selection:text-white pb-safe relative overflow-x-hidden">
         <SplashScreen />
         <Header />
-        <main className="flex-grow pt-20">
-          {children}
-        </main>
+        
+        <div className="flex-grow flex relative">
+          <main className="flex-grow pt-20 transition-all duration-700">
+            {props.children}
+          </main>
+
+          {/* Parallel Dashboard Slot */}
+          <aside className="fixed right-0 top-0 h-full z-[1001] w-full md:w-[450px] transform transition-transform duration-700 ease-in-out">
+            {props.dashboard}
+          </aside>
+        </div>
+
+        {/* Parallel Modal Slot */}
+        <div className="z-[2000]">
+          {props.modal}
+        </div>
+
         <Footer />
       </body>
     </html>

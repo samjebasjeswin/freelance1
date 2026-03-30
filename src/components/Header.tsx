@@ -24,15 +24,23 @@ export default function Header() {
           <li>
             <Link 
               href="/" 
-              className={`transition-colors relative pb-1 ${isActive('/') ? 'text-theme-accent border-b border-theme-accent' : 'hover:text-theme-accent'}`}
+              className={`transition-colors relative pb-1 ${isActive('/') ? 'text-theme-accent border-b border-theme-border' : 'hover:text-theme-accent'}`}
             >
               HOME
             </Link>
           </li>
           <li>
             <Link 
+              href="/collections" 
+              className={`transition-colors relative pb-1 ${isActive('/collections') ? 'text-theme-accent border-b border-theme-border' : 'hover:text-theme-accent'}`}
+            >
+              COLLECTIONS
+            </Link>
+          </li>
+          <li>
+            <Link 
               href="/products" 
-              className={`transition-colors relative pb-1 ${isActive('/products') ? 'text-theme-accent border-b border-theme-accent' : 'hover:text-theme-accent'}`}
+              className={`transition-colors relative pb-1 ${isActive('/products') ? 'text-theme-accent border-b border-theme-border' : 'hover:text-theme-accent'}`}
             >
               PRODUCTS
             </Link>
@@ -40,7 +48,7 @@ export default function Header() {
           <li>
             <Link 
               href="/orders" 
-              className={`transition-colors relative pb-1 ${isActive('/orders') ? 'text-theme-accent border-b border-theme-accent' : 'hover:text-theme-accent'}`}
+              className={`transition-colors relative pb-1 ${isActive('/orders') ? 'text-theme-accent border-b border-theme-border' : 'hover:text-theme-accent'}`}
             >
               ORDERS
             </Link>
@@ -48,12 +56,15 @@ export default function Header() {
         </ul>
 
         <div className="flex items-center gap-6">
-          <Link href="/login" className="hidden md:block text-[13px] font-medium tracking-[0.15em] hover:text-theme-accent transition-colors">LOGIN</Link>
-          <Link href="/signup" className="hidden md:inline-block bg-theme-text text-theme-bg px-6 py-2.5 rounded-full text-[12px] font-medium tracking-wider uppercase hover:bg-theme-accent transition-all">SIGN UP</Link>
-          <button className="relative p-1 hover:text-theme-accent transition-colors">
-            <ShoppingBag size={22} strokeWidth={1.5} />
-            <span className="absolute -top-1 -right-1 bg-theme-accent text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
-          </button>
+          <Link href="/dashboard" className="hidden md:flex items-center gap-2 text-[11px] font-bold tracking-widest hover:text-theme-accent transition-colors group">
+            <User size={18} strokeWidth={1.5} className="group-hover:scale-110 transition-transform" />
+            DASHBOARD
+          </Link>
+          <Link href="/login" className="hidden md:block text-[11px] font-bold tracking-widest hover:text-theme-accent transition-colors">LOGIN</Link>
+          <Link href="/cart" className="relative p-1 hover:text-theme-accent transition-colors group">
+            <ShoppingBag size={22} strokeWidth={1.5} className="group-hover:-rotate-12 transition-transform" />
+            <span className="absolute -top-1 -right-1 bg-theme-accent text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">1</span>
+          </Link>
           <button 
             className="md:hidden p-1"
             onClick={() => setIsMenuOpen(!isMenuOpen)}

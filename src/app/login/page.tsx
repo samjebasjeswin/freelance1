@@ -104,6 +104,15 @@ export default function LoginPage() {
             CREATE ACCOUNT
           </Link>
         </div>
+
+        <div className="text-center pt-8 border-t border-theme-border/20">
+          <Link 
+            href="/" 
+            className="text-[11px] font-bold tracking-[0.2em] text-theme-faint hover:text-theme-accent transition-colors uppercase"
+          >
+            Continue as Guest
+          </Link>
+        </div>
       </div>
     </div>
   );

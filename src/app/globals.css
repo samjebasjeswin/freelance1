@@ -1,24 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fcf4e8;
-  --foreground: #000000;
+  --background: 34 33% 95%; /* #fcf4e8ish */
+  --foreground: 0 0% 0%;
   
-  --theme-bg: #fcf4e8;
-  --theme-text: #000000;
-  --theme-accent: #c8a97e;
-  --theme-border: #e9decf;
-  --theme-card: #ffffff;
-  --theme-faint: #7c7c7c;
+  --theme-bg: 34 33% 95%;
+  --theme-text: 0 0% 0%;
+  --theme-accent: 36 45% 64%; /* #c8a97e */
+  --theme-border: 34 25% 86%; /* #e9decf */
+  --theme-card: 0 0% 100%;
+  --theme-faint: 0 0% 49%;
+  
+  --glass: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.2);
 }
 
 @theme {
-  --color-theme-bg: var(--theme-bg);
-  --color-theme-text: var(--theme-text);
-  --color-theme-accent: var(--theme-accent);
-  --color-theme-border: var(--theme-border);
-  --color-theme-card: var(--theme-card);
-  --color-theme-faint: var(--theme-faint);
+  --color-theme-bg: hsl(var(--theme-bg));
+  --color-theme-text: hsl(var(--theme-text));
+  --color-theme-accent: hsl(var(--theme-accent));
+  --color-theme-border: hsl(var(--theme-border));
+  --color-theme-card: hsl(var(--theme-card));
+  --color-theme-faint: hsl(var(--theme-faint));
   
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
@@ -27,19 +30,26 @@
 }
 
 body {
-  background: var(--theme-bg);
-  color: var(--theme-text);
+  background: hsl(var(--theme-bg));
+  color: hsl(var(--theme-text));
   font-family: var(--font-sans);
 }
 
 .shadow-premium {
-  box-shadow: 0 12px 36px rgba(200, 169, 126, 0.15);
+  box-shadow: 0 20px 50px rgba(200, 169, 126, 0.12), 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
 }
 
 @keyframes reveal {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -47,6 +57,23 @@ body {
   }
 }
 
+@keyframes slideRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 .animate-reveal {
-  animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: reveal 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.animate-slide-right {
+  animation: slideRight 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
 }

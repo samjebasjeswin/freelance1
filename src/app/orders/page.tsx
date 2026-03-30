@@ -11,13 +11,14 @@ export default function OrdersPage() {
     <div className="container mx-auto px-6 py-12 md:py-24 animate-reveal">
       <div className="max-w-4xl mx-auto space-y-12">
         <div className="flex flex-col md:flex-row justify-between items-baseline gap-6 border-b border-theme-border pb-8 text-center md:text-left">
-          <div className="space-y-2">
+          <div className="space-y-4">
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-theme-text tracking-wide uppercase">
-              Your Orders
+              Track Orders
             </h1>
-            <p className="text-[13px] font-sans text-theme-faint font-light tracking-[0.1em] uppercase">
-              MANAGE AND TRACK YOUR PURCHASES
-            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <p className="text-[11px] font-bold tracking-[0.2em] text-theme-accent uppercase border border-theme-accent/30 px-3 py-1 rounded-full bg-theme-accent/5">Guest Tracking Enabled</p>
+              <p className="text-[12px] font-sans text-theme-faint font-light tracking-[0.05em]">Sign in to sync your full history</p>
+            </div>
           </div>
           <div className="relative w-full md:w-64">
             <input 

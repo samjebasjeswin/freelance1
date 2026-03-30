@@ -1,46 +1,75 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function Hero() {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <section className="relative h-[90vh] flex items-center overflow-hidden">
-      <div className="absolute inset-0 z-0">
+    <section className="relative h-[95vh] flex items-center overflow-hidden bg-theme-text">
+      <div 
+        className="absolute inset-0 z-0 scale-110"
+        style={{ 
+          transform: `translateY(${scrollY * 0.4}px)`,
+          transition: 'transform 0.1s linear'
+        }}
+      >
         <Image
           src="/assets/hero_bag.png"
           alt="Luxury Crochet Collection"
           fill
-          className="object-cover transition-transform duration-[20s] hover:scale-110"
+          className="object-cover opacity-60"
           priority
         />
-        <div className="absolute inset-0 bg-black/40 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40 z-10" />
       </div>
 
       <div className="container mx-auto px-6 relative z-20 text-white">
-        <div className="max-w-4xl space-y-6 animate-reveal">
-          <p className="text-[13px] md:text-[14px] font-sans font-medium tracking-[0.4em] uppercase opacity-90">
-            MORNING SALE
+        <div className="max-w-4xl space-y-8 animate-reveal">
+          <div className="space-y-4">
+            <p className="text-[12px] md:text-[14px] font-sans font-bold tracking-[0.5em] uppercase opacity-80 decoration-theme-accent underline decoration-2 underline-offset-8">
+              Artisan Exhibition 2024
+            </p>
+            <h1 className="text-6xl md:text-9xl font-serif font-bold leading-[0.9] uppercase tracking-tighter">
+              Timeless<br/>
+              <span className="text-theme-accent">Artistry.</span>
+            </h1>
+          </div>
+
+          <p className="text-[16px] md:text-[20px] font-sans font-light tracking-[0.15em] opacity-90 uppercase max-w-2xl leading-relaxed">
+            Elevate your journey with our meticulously handcrafted crochet collection. Where tradition meets modern luxury.
           </p>
-          <h1 className="text-5xl md:text-8xl font-serif font-bold leading-[1.1] uppercase tracking-[-0.02em]">
-            WINTER COLLECTIONS
-          </h1>
-          <p className="text-[16px] md:text-[18px] font-sans font-light tracking-[0.1em] opacity-80 uppercase">
-            SALE IS LIVE NOW
-          </p>
-          <div className="pt-8">
+
+          <div className="pt-10 flex flex-wrap gap-6">
             <Link 
               href="/collections" 
-              className="inline-block bg-white text-theme-text px-10 py-4 rounded-full text-[14px] font-sans font-medium hover:bg-theme-accent hover:text-white transition-all transform hover:scale-105"
+              className="group relative inline-block bg-white text-theme-text px-12 py-5 rounded-full text-[14px] font-sans font-bold hover:bg-theme-accent hover:text-white transition-all transform hover:scale-105 active:scale-95 shadow-2xl overflow-hidden"
             >
-              DISCOVER NOW
+              <span className="relative z-10">DISCOVER COLLECTIONS</span>
+              <div className="absolute inset-0 bg-theme-accent translate-y-full group-hover:translate-y-0 transition-transform duration-500 origin-bottom" />
+            </Link>
+            <Link 
+              href="/products" 
+              className="inline-block border border-white/30 backdrop-blur-md text-white px-12 py-5 rounded-full text-[14px] font-sans font-bold hover:bg-white hover:text-theme-text transition-all active:scale-95"
+            >
+              BROWSE ALL
             </Link>
           </div>
         </div>
       </div>
       
-      {/* Slider dots indicator */}
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex gap-3 z-20">
-        <div className="w-10 h-1 rounded-full bg-white" />
-        <div className="w-2 h-1 rounded-full bg-white/40" />
+      {/* Scroll indicator */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-bounce opacity-50">
+        <span className="text-[10px] font-bold tracking-[0.3em] uppercase vertical-text">Scroll</span>
+        <div className="w-[1px] h-12 bg-white" />
       </div>
     </section>
   );
